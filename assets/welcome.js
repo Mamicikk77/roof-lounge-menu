@@ -65,7 +65,14 @@
   // Hareket azaltma tercihinde videoyu durdur
   const v = $('#bgVideo');
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) { v.removeAttribute('autoplay'); v.pause(); }
-  else v.play?.().catch(() => {});
+  else {
+    // Bazı tarayıcılar (düşük güç modu, arka planda açılan sekme) otomatik oynatmayı durdurabilir: tekrar dene
+    const tryPlay = () => { if (v.paused) v.play?.().catch(() => {}); };
+    tryPlay();
+    v.addEventListener('canplay', tryPlay);
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') tryPlay(); });
+    ['pointerdown', 'touchstart'].forEach(ev => document.addEventListener(ev, tryPlay, { once: true, passive: true }));
+  }
 
   render(); links();
   fetch('data/menu.json?v=' + Date.now()).then(r => r.json()).then(d => { S = d.settings; render(); links(); }).catch(() => {});
