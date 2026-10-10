@@ -1,0 +1,13 @@
+{
+  "name": "roof-lounge-qr-menu",
+  "version": "1.0.0",
+  "description": "Roof Lounge Cafe Alanya — QR menü (TR/EN/RU) ve menü yönetim paneli",
+  "main": "dev-server.js",
+  "scripts": {
+    "start": "node dev-server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "private": true
+}

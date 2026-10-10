@@ -1,0 +1,30 @@
+// Menü ve panelin ortak sözlükleri: alerjenler (AB 14 alerjen) ve etiketler
+window.RL = {
+  allergens: {
+    gluten:      { i: '🌾', tr: 'Gluten', en: 'Gluten', ru: 'Глютен' },
+    crustaceans: { i: '🦐', tr: 'Kabuklu deniz ürünleri', en: 'Crustaceans', ru: 'Ракообразные' },
+    eggs:        { i: '🥚', tr: 'Yumurta', en: 'Eggs', ru: 'Яйца' },
+    fish:        { i: '🐟', tr: 'Balık', en: 'Fish', ru: 'Рыба' },
+    peanuts:     { i: '🥜', tr: 'Yer fıstığı', en: 'Peanuts', ru: 'Арахис' },
+    soy:         { i: '🫘', tr: 'Soya', en: 'Soy', ru: 'Соя' },
+    milk:        { i: '🥛', tr: 'Süt / Laktoz', en: 'Milk / Lactose', ru: 'Молоко / лактоза' },
+    nuts:        { i: '🌰', tr: 'Sert kabuklu yemişler', en: 'Tree nuts', ru: 'Орехи' },
+    celery:      { i: '🥬', tr: 'Kereviz', en: 'Celery', ru: 'Сельдерей' },
+    mustard:     { i: '🌼', tr: 'Hardal', en: 'Mustard', ru: 'Горчица' },
+    sesame:      { i: '🌱', tr: 'Susam', en: 'Sesame', ru: 'Кунжут' },
+    sulphites:   { i: '🍷', tr: 'Sülfit', en: 'Sulphites', ru: 'Сульфиты' },
+    lupin:       { i: '🌸', tr: 'Acı bakla (lupin)', en: 'Lupin', ru: 'Люпин' },
+    molluscs:    { i: '🦑', tr: 'Yumuşakçalar', en: 'Molluscs', ru: 'Моллюски' },
+  },
+  tags: {
+    popular: { i: '★', tr: 'Popüler', en: 'Popular', ru: 'Популярное' },
+    chef:    { i: '✦', tr: 'Şefin Önerisi', en: 'Signature', ru: 'Фирменное' },
+    new:     { i: '●', tr: 'Yeni', en: 'New', ru: 'Новинка' },
+    veg:     { i: '🌿', tr: 'Vejetaryen', en: 'Vegetarian', ru: 'Вегетарианское' },
+    vegan:   { i: '🌱', tr: 'Vegan', en: 'Vegan', ru: 'Веганское' },
+    spicy:   { i: '🌶', tr: 'Acı', en: 'Spicy', ru: 'Острое' },
+    alc:     { i: '🍸', tr: 'Alkollü', en: 'Alcoholic', ru: 'Алкоголь' },
+  },
+  money(v, cur) { return Number(v || 0).toLocaleString('tr-TR', { maximumFractionDigits: 2 }) + ' ' + (cur || '₺'); },
+  esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); },
+};

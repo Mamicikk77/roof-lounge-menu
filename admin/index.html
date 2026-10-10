@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Roof Lounge · Menü Paneli</title>
+<link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+<!-- Giriş -->
+<section id="login" class="login" hidden>
+  <form id="loginForm" class="login-card">
+    <div class="logo">ROOF</div>
+    <p class="muted">Menü Yönetim Paneli</p>
+    <label>GitHub erişim anahtarı (token)<input name="token" type="password" autocomplete="current-password" required placeholder="github_pat_…"></label>
+    <label id="repoLabel">Depo (kullanıcı/repo)<input name="repo" required placeholder="kullaniciadi/roof-lounge-menu"></label>
+    <label class="switch left"><input type="checkbox" name="remember" checked><span></span>Bu cihazda beni hatırla</label>
+    <p class="err" id="loginErr"></p>
+    <button class="btn primary wide">Giriş Yap</button>
+    <details class="help">
+      <summary>Anahtarı nereden alırım?</summary>
+      <ol>
+        <li>GitHub'da <b>Settings → Developer settings → Personal access tokens → Fine-grained tokens</b> sayfasına gidin.</li>
+        <li><b>Generate new token</b>: süre seçin, <b>Repository access</b> kısmında sadece bu menü deposunu seçin.</li>
+        <li><b>Permissions → Contents</b> iznini <b>Read and write</b> yapın ve oluşturun.</li>
+        <li>Çıkan anahtarı buraya yapıştırın. Personel için ayrı anahtar oluşturabilir, istediğiniz zaman iptal edebilirsiniz.</li>
+      </ol>
+    </details>
+  </form>
+</section>
+
+<!-- Uygulama -->
+<div id="app" hidden>
+  <header class="topbar">
+    <div class="logo sm">ROOF</div>
+    <nav class="tabs" id="tabs">
+      <button data-tab="products" class="on">Ürünler</button>
+      <button data-tab="categories">Kategoriler</button>
+      <button data-tab="bulk">Toplu Fiyat</button>
+      <button data-tab="qr">QR Kod</button>
+      <button data-tab="settings">Ayarlar</button>
+    </nav>
+    <div class="top-right">
+      <a class="btn ghost sm" href="../" target="_blank" rel="noopener">Siteyi Gör ↗</a>
+      <button class="btn ghost sm" id="logoutBtn">Çıkış</button>
+    </div>
+  </header>
+
+  <div class="publish-bar" id="publishBar" hidden>
+    <span id="dirtyText">Yayınlanmamış değişiklikler var</span>
+    <button class="btn ghost sm" id="discardBtn">Geri al</button>
+    <button class="btn primary sm" id="publishBtn">Değişiklikleri Yayınla</button>
+  </div>
+
+  <main class="wrap">
+    <!-- ÜRÜNLER -->
+    <section data-view="products">
+      <div class="view-head">
+        <div>
+          <h1>Ürünler</h1>
+          <p class="muted" id="prodStats"></p>
+        </div>
+        <button class="btn primary" id="newProductBtn">+ Yeni Ürün</button>
+      </div>
+      <div class="filters">
+        <input type="search" id="pSearch" placeholder="Ürün ara (TR / EN / RU)…">
+        <select id="pCat"></select>
+        <select id="pState">
+          <option value="all">Tüm durumlar</option>
+          <option value="active">Yayında</option>
+          <option value="hidden">Gizli</option>
+          <option value="sold">Tükendi</option>
+          <option value="noimg">Fotoğrafsız</option>
+          <option value="notr">Çevirisi eksik</option>
+        </select>
+      </div>
+      <p class="hint" id="reorderHint">Sıralamayı değiştirmek için yukarıdan bir kategori seçin, ardından ↑ ↓ oklarını kullanın. Fiyatı listeden direkt değiştirebilirsiniz.</p>
+      <div class="plist" id="plist"></div>
+    </section>
+
+    <!-- KATEGORİLER -->
+    <section data-view="categories" hidden>
+      <div class="view-head">
+        <div><h1>Kategoriler</h1><p class="muted">Kategori adlarını üç dilde düzenleyin, sıralayın veya gizleyin.</p></div>
+        <button class="btn primary" id="newCatBtn">+ Yeni Kategori</button>
+      </div>
+      <div id="clist"></div>
+    </section>
+
+    <!-- TOPLU FİYAT -->
+    <section data-view="bulk" hidden>
+      <div class="view-head"><div><h1>Toplu Fiyat Güncelleme</h1><p class="muted">Zam veya indirim için tüm ürünlerin ya da bir bölümün fiyatlarını yüzde olarak güncelleyin.</p></div></div>
+      <form class="card form-grid" id="bulkForm">
+        <label>Değişim (%)<input name="percent" type="number" step="0.1" placeholder="Örn. 10 (zam) veya -5 (indirim)" required></label>
+        <label>Kapsam<select name="scope" id="bulkScope"></select></label>
+        <label>Yuvarlama<select name="round"><option value="5">5 ₺'ye yuvarla</option><option value="10">10 ₺'ye yuvarla</option><option value="1">1 ₺'ye yuvarla</option></select></label>
+        <div class="full"><p class="muted" id="bulkPreview"></p><button class="btn primary">Fiyatları Güncelle</button></div>
+      </form>
+    </section>
+
+    <!-- QR -->
+    <section data-view="qr" hidden>
+      <div class="view-head"><div><h1>QR Kod</h1><p class="muted">Masalara koyacağınız QR kodu oluşturun ve indirin.</p></div></div>
+      <div class="card qr-card">
+        <div class="form-grid">
+          <label class="full">Site adresi<input id="qrUrl"></label>
+          <label>Dil (isteğe bağlı)<select id="qrLang"><option value="">Telefon diline göre otomatik</option><option value="tr">Türkçe</option><option value="en">English</option><option value="ru">Русский</option></select></label>
+          <label>Boyut<select id="qrSize"><option value="512">512 px</option><option value="1024" selected>1024 px (baskı)</option><option value="2048">2048 px</option></select></label>
+        </div>
+        <div class="qr-preview">
+          <div class="qr-frame"><div id="qrBox"></div><div class="qr-cap">MENÜ · MENU · МЕНЮ</div></div>
+          <div class="qr-actions">
+            <button class="btn primary" id="qrDownload">PNG İndir</button>
+            <p class="hint">QR kod karşılama ekranını açar; misafir oradan menüye geçer. Menüde değişiklik yapmanız QR kodu etkilemez — basılı QR'lar geçerli kalır.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- AYARLAR -->
+    <section data-view="settings" hidden>
+      <div class="view-head"><div><h1>Ayarlar</h1><p class="muted">Karşılama ekranındaki WhatsApp, Wi-Fi, Instagram ve Konum butonları bu bilgileri kullanır.</p></div></div>
+      <form class="card" id="settingsForm">
+        <h2>İşletme Bilgileri</h2>
+        <div class="form-grid">
+          <label>İşletme adı<input name="name"></label>
+          <label>Şehir<input name="city"></label>
+          <label>WhatsApp numarası<input name="whatsapp" placeholder="905xxxxxxxxx" inputmode="tel"></label>
+          <label>Telefon<input name="phone" placeholder="+90 5xx xxx xx xx"></label>
+          <label>Instagram<input name="instagram" placeholder="@kullaniciadi"></label>
+          <label>Wi-Fi adı<input name="wifiName"></label>
+          <label>Wi-Fi şifresi<input name="wifiPass"></label>
+          <label>Çalışma saatleri<input name="hours" placeholder="Her gün 09:00 – 02:00"></label>
+          <label class="full">Adres<input name="address"></label>
+          <label class="full">Google Maps bağlantısı<input name="mapsUrl" placeholder="Google Maps'te işletmenizi açıp Paylaş → Bağlantıyı kopyala"></label>
+          <label>Para birimi<input name="currency" maxlength="4"></label>
+        </div>
+        <h3>Slogan</h3>
+        <div class="ml" data-ml="tagline"></div>
+        <h3>Menü alt bilgi notu</h3>
+        <div class="ml" data-ml="notice" data-textarea></div>
+        <h3>Bölüm adları</h3>
+        <div id="sectionNames"></div>
+        <div class="form-actions"><button class="btn primary">Ayarları Uygula</button></div>
+      </form>
+
+      <div class="card">
+        <h2>Bağlantı</h2>
+        <p class="muted" id="connInfo"></p>
+        <p class="muted">Personel eklemek için GitHub'da bu depoya özel ayrı bir erişim anahtarı (token) oluşturup paylaşın. Personel ayrıldığında anahtarını GitHub'dan iptal etmeniz yeterli.</p>
+      </div>
+
+      <div class="card">
+        <h2>Yedek</h2>
+        <p class="muted">Tüm menü verisini (ürünler, fiyatlar, çeviriler, ayarlar) JSON dosyası olarak indirin. GitHub her yayını ayrıca geçmişte saklar.</p>
+        <button class="btn" id="backupBtn">Yedeği İndir</button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- Ürün düzenleme -->
+<div class="modal" id="pModal" hidden>
+  <div class="modal-bg" data-close></div>
+  <form class="modal-card" id="pForm" novalidate>
+    <header class="modal-head">
+      <h2 id="pModalTitle">Ürün</h2>
+      <button type="button" class="x" data-close aria-label="Kapat">×</button>
+    </header>
+    <div class="modal-body">
+      <div class="pgrid">
+        <div class="photo-col">
+          <div class="photo" id="photoBox">
+            <img id="photoImg" alt="" hidden>
+            <div class="photo-empty" id="photoEmpty"><b>Fotoğraf ekle</b><span>Tıklayın veya sürükleyip bırakın</span></div>
+            <div class="photo-busy" id="photoBusy" hidden>Yükleniyor…</div>
+          </div>
+          <input type="file" id="photoInput" accept="image/*" hidden>
+          <div class="photo-actions">
+            <button type="button" class="btn sm" id="photoChange">Fotoğraf seç</button>
+            <button type="button" class="btn sm danger-ghost" id="photoRemove">Fotoğrafı kaldır</button>
+          </div>
+          <label class="switch"><input type="checkbox" name="active"><span></span>Menüde göster</label>
+          <label class="switch"><input type="checkbox" name="soldOut"><span></span>Tükendi olarak işaretle</label>
+        </div>
+        <div>
+          <div class="lang-tabs" id="pLangTabs">
+            <button type="button" data-l="tr" class="on">Türkçe</button>
+            <button type="button" data-l="en">English</button>
+            <button type="button" data-l="ru">Русский</button>
+          </div>
+          <div class="lang-panes">
+            <div data-pane="tr"><label>Ürün adı *<input name="name.tr" maxlength="120"></label><label>Açıklama / içerik<textarea name="desc.tr" rows="3" maxlength="600"></textarea></label></div>
+            <div data-pane="en" hidden><label>Product name<input name="name.en" maxlength="120"></label><label>Description<textarea name="desc.en" rows="3" maxlength="600"></textarea></label></div>
+            <div data-pane="ru" hidden><label>Название<input name="name.ru" maxlength="120"></label><label>Описание<textarea name="desc.ru" rows="3" maxlength="600"></textarea></label></div>
+          </div>
+          <p class="hint">Çevirisi boş bırakılan dilde Türkçe metin gösterilir.</p>
+          <div class="form-grid">
+            <label>Kategori<select name="category" id="pCategory"></select></label>
+            <label>Fiyat (₺)<input name="price" type="number" step="0.01" min="0" inputmode="decimal"></label>
+            <label>Ortalama kalori (kcal)<input name="kcal" type="number" min="0" placeholder="Boş = gösterme"></label>
+            <label>Porsiyon / miktar<input name="portion" maxlength="40" placeholder="Örn. 250 g, 330 ml, 4 cl"></label>
+          </div>
+          <div class="variants">
+            <label class="switch"><input type="checkbox" id="hasVariants"><span></span>Birden fazla seçenek / boy (örn. Tek–Duble, 35 cl–70 cl)</label>
+            <div id="variantList" hidden></div>
+            <button type="button" class="btn sm" id="addVariant" hidden>+ Seçenek ekle</button>
+          </div>
+        </div>
+      </div>
+      <h3>Alerjenler</h3>
+      <div class="checks" id="pAllergens"></div>
+      <h3>Etiketler</h3>
+      <div class="checks" id="pTags"></div>
+    </div>
+    <footer class="modal-foot">
+      <button type="button" class="btn danger-ghost" id="pDelete">Ürünü Sil</button>
+      <span class="err" id="pErr"></span>
+      <button type="button" class="btn" data-close>Vazgeç</button>
+      <button class="btn primary" id="pSave">Tamam</button>
+    </footer>
+  </form>
+</div>
+
+<!-- Onay -->
+<div class="modal" id="confirmModal" hidden>
+  <div class="modal-bg"></div>
+  <div class="modal-card small">
+    <div class="modal-body"><p id="confirmText"></p></div>
+    <footer class="modal-foot"><button class="btn" id="confirmNo">Vazgeç</button><button class="btn danger" id="confirmYes">Evet</button></footer>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="../assets/shared.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>
